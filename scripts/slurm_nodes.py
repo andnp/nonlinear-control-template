@@ -5,13 +5,12 @@ sys.path.append(os.getcwd() + '/src')
 
 import experiment.ExperimentModel as Experiment
 import PyExpUtils.runner.Slurm as Slurm
+import PyExpUtils.runner.parallel as Parallel
 from PyExpUtils.results.indices import listIndices
 from PyExpUtils.results.paths import listResultsPaths
 from PyExpUtils.utils.arrays import first
 from PyExpUtils.utils.generator import group
 from PyExpUtils.utils.csv import buildCsvParams
-
-SLOW_ALGS = ['NLQC']
 
 if len(sys.argv) < 4:
     print('Please run again using')
@@ -43,7 +42,6 @@ executable = sys.argv[2]
 base_path = sys.argv[3]
 runs = int(sys.argv[4])
 experiment_paths = sys.argv[5:]
-
 # generates a list of indices whose results are missing
 def generateMissing(exp, indices, data):
     for idx in indices:
@@ -71,9 +69,6 @@ for path in experiment_paths:
     exp = Experiment.load(path)
     # load the slurm config file
     slurm = Slurm.fromFile(slurm_path)
-
-    if exp.agent in SLOW_ALGS:
-        slurm.sequential = 1
 
     # figure out how many indices to use
     size = exp.numPermutations() * runs
@@ -103,10 +98,10 @@ for path in experiment_paths:
         # build the executable string
         runner = f'python {executable} {path} '
         # generate the gnu-parallel command for dispatching to many CPUs across server nodes
-        parallel = Slurm.buildParallel(runner, l, {
-            'ntasks': slurm.cores,
-            'nodes-per-process': 1,
-            'threads-per-process': 1, # <-- if you need multiple threads for a single process, change this number (NOTE: the rest of the scheduling logic does not know how to handle this yet)
+        parallel = Parallel.build({
+            'executable': runner,
+            'cores': slurm.cores,
+            'tasks': l,
         })
 
         # generate the bash script which will be scheduled

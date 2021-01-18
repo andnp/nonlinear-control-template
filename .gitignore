@@ -9,7 +9,7 @@ __pycache__
 *.pyc
 
 # ignore test experiments
-test.json
+experiments/test
 
 # ignore editor settings
 .vscode

@@ -1,0 +1,22 @@
+{
+    "agent": "TDRC-PG",
+    "problem": "MinBreakout",
+    "max_steps": 200000,
+    "metaParameters": {
+        "target_refresh": 1,
+        "buffer_size": 100000,
+        "batch": 32,
+        "adaptive_beta": true,
+        "optimizer": {
+            "name": "ADAM",
+            "alpha": [0.0001],
+            "eta": 1.0,
+            "beta1": 0.9,
+            "beta2": 0.999
+        },
+        "layers": [
+            {"type": "conv", "width": 10, "out_channels": 16, "act": "silu"},
+            {"type": "fc", "act": "dsilu", "units": 128}
+        ]
+    }
+}
